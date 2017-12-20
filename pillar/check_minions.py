@@ -1,5 +1,5 @@
-def _check_pillar_minions(self, expr, delimiter, greedy):
+def check_minions(expr, delimiter, greedy):
     '''
     Return the minions found by looking via pillar
     '''
-    return self._check_cache_minions(expr, delimiter, greedy, 'pillar')
+    return salt.tgt.check_cache_minions(__opts__, expr, delimiter, greedy, 'pillar')

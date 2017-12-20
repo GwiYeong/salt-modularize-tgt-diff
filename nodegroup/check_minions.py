@@ -1,8 +1,8 @@
-def _check_nodegroup_minions(self, expr, greedy):  # pylint: disable=unused-argument
+def check_minions(expr, greedy):
     '''
     Return minions found by looking at nodegroups
     '''
-    return self._check_compound_minions(nodegroup_comp(expr, self.opts['nodegroups']),
-        DEFAULT_TARGET_DELIM,
-        greedy)
-
+    return salt.tgt.check_compound_minions(__opts__,
+                                           salt.tgt.nodegroup_comp(expr, __opts__['nodegroups']),
+                                           DEFAULT_TARGET_DELIM,
+                                           greedy)

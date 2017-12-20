@@ -1,4 +1,4 @@
-def fill_auth_list_from_groups(self, auth_provider, user_groups, auth_list):
+def fill_auth_list_from_groups(auth_provider, user_groups, auth_list):
     '''
     Returns a list of authorisation matchers that a user is eligible for.
     This list is a combination of the provided personal matchers plus the

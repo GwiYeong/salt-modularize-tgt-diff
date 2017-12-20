@@ -1,4 +1,4 @@
-def fill_auth_list(self, auth_provider, name, groups, auth_list=None, permissive=None):
+def fill_auth_list(opts, auth_provider, name, groups, auth_list=None, permissive=None):
     '''
     Returns a list of authorisation matchers that a user is eligible for.
     This list is a combination of the provided personal matchers plus the
@@ -7,7 +7,7 @@ def fill_auth_list(self, auth_provider, name, groups, auth_list=None, permissive
     if auth_list is None:
         auth_list = []
     if permissive is None:
-        permissive = self.opts.get('permissive_acl')
+        permissive = opts.get('permissive_acl')
     name_matched = False
     for match in auth_provider:
         if match == '*' and not permissive:

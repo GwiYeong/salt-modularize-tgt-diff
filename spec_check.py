@@ -1,4 +1,4 @@
-def spec_check(self, auth_list, fun, args, form):
+def spec_check(auth_list, fun, args, form):
     '''
     Check special API permissions
     '''
@@ -27,10 +27,10 @@ def spec_check(self, auth_list, fun, args, form):
             valid = next(six.iterkeys(ind))
             if valid[0] == '@':
                 if valid[1:] == mod_name:
-                    if self.__fun_check(ind[valid], fun_name, args.get('arg'), args.get('kwarg')):
+                    if _fun_check(ind[valid], fun_name, args.get('arg'), args.get('kwarg')):
                         return True
                 if valid[1:] == form or valid == '@{0}s'.format(form):
-                    if self.__fun_check(ind[valid], fun, args.get('arg'), args.get('kwarg')):
+                    if _fun_check(ind[valid], fun, args.get('arg'), args.get('kwarg')):
                         return True
     return False
 

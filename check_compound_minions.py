@@ -1,30 +1,38 @@
-def _check_compound_minions(self,
-                            expr,
-                            delimiter,
-                            greedy,
-                            pillar_exact=False):  # pylint: disable=unused-argument
+def check_compound_minions(opts,
+                           expr,
+                           delimiter,
+                           greedy,
+                           pillar_exact=False):
     '''
     Return the minions found by looking via compound matcher
     '''
+    tgts = salt.loader.tgt(opts)
     if not isinstance(expr, six.string_types) and not isinstance(expr, (list, tuple)):
         log.error('Compound target that is neither string, list nor tuple')
         return {'minions': [], 'missing': []}
-    minions = set(self._pki_minions())
+    minions = set(pki_minions(opts))
     log.debug('minions: {0}'.format(minions))
 
-    if self.opts.get('minion_data_cache', False):
-        ref = {'G': self._check_grain_minions,
-               'P': self._check_grain_pcre_minions,
-               'I': self._check_pillar_minions,
-               'J': self._check_pillar_pcre_minions,
-               'L': self._check_list_minions,
+    def all_minions():
+        '''
+        Return a list of all minions that have auth'd
+        '''
+        mlist = pki_dir_minions(opts)
+        return {'minions': mlist, 'missing': []}
+
+    if opts.get('minion_data_cache', False):
+        ref = {'G': tgts.grain.check_minions,
+               'P': tgts.grain_pcre.check_minions,
+               'I': tgts.pillar.check_minions,
+               'J': tgts.pillar_pcre.check_minions,
+               'L': tgts.list.check_minions,
                'N': None,    # nodegroups should already be expanded
-               'S': self._check_ipcidr_minions,
-               'E': self._check_pcre_minions,
-               'R': self._all_minions}
+               'S': tgts.ipcidr.check_minions,
+               'E': tgts.pcre.check_minions,
+               'R': all_minions}
         if pillar_exact:
-            ref['I'] = self._check_pillar_exact_minions
-            ref['J'] = self._check_pillar_exact_minions
+            ref['I'] = tgts.pillar_exact.check_minions
+            ref['J'] = tgts.pillar_exact.check_minions
 
         results = []
         unmatched = []
@@ -92,7 +100,7 @@ def _check_compound_minions(self,
                         return {'minions': [], 'missing': []}
 
             elif target_info and target_info['engine']:
-                if 'N' == target_info['engine']:
+                if target_info['engine'] == 'N':
                     # Nodegroups should already be expanded/resolved to other engines
                     log.error('Detected nodegroup expansion failure of "{0}"'.format(word))
                     return {'minions': [], 'missing': []}
@@ -108,12 +116,16 @@ def _check_compound_minions(self,
                     )
                     return {'minions': [], 'missing': []}
 
-                engine_args = [target_info['pattern']]
-                if target_info['engine'] in ('G', 'P', 'I', 'J'):
-                    engine_args.append(target_info['delimiter'] or ':')
-                engine_args.append(greedy)
-
-                _results = engine(*engine_args)
+                try:
+                    fcall = salt.utils.args.format_call(engine,
+                                                        {'expr': target_info['pattern'],
+                                                         'delimiter': target_info['delimiter'] or delimiter,
+                                                         'greedy': greedy})
+                    _results = engine(*fcall['args'], **fcall.get('kwargs', {}))
+                except:
+                    log.error(('Failed to match available minions with engine: {0} pattern: {1}'
+                               .format(target_info['engine'], expr)))
+                    return {'minions': [], 'missing':[]}
                 results.append(str(set(_results['minions'])))
                 missing.extend(_results['missing'])
                 if unmatched and unmatched[-1] == '-':
@@ -122,7 +134,7 @@ def _check_compound_minions(self,
 
             else:
                 # The match is not explicitly defined, evaluate as a glob
-                _results = self._check_glob_minions(word, True)
+                _results = tgts.glob.check_minions(word)
                 results.append(str(set(_results['minions'])))
                 if unmatched and unmatched[-1] == '-':
                     results.append(')')
@@ -143,4 +155,5 @@ def _check_compound_minions(self,
 
     return {'minions': list(minions),
             'missing': []}
+
 

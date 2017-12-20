@@ -1,20 +1,21 @@
-def _check_ipcidr_minions(self, expr, greedy):
+def check_minions(expr, greedy):
     '''
     Return the minions found by looking via ipcidr
     '''
-    cache_enabled = self.opts.get('minion_data_cache', False)
+    cache = salt.cache.factory(__opts__)
+    cache_enabled = __opts__.get('minion_data_cache', False)
 
     if greedy:
-        minions = self._pki_minions()
+        minions = salt.tgt.pki_minions(__opts__)
     elif cache_enabled:
-        minions = self.cache.list('minions')
+        minions = cache.list('minions')
     else:
         return {'minions': [],
                 'missing': []}
 
     if cache_enabled:
         if greedy:
-            cminions = self.cache.list('minions')
+            cminions = cache.list('minions')
         else:
             cminions = minions
         if cminions is None:
@@ -37,7 +38,7 @@ def _check_ipcidr_minions(self, expr, greedy):
 
         minions = set(minions)
         for id_ in cminions:
-            mdata = self.cache.fetch('minions/{0}'.format(id_), 'data')
+            mdata = cache.fetch('minions/{0}'.format(id_), 'data')
             if mdata is None:
                 if not greedy:
                     minions.remove(id_)
@@ -55,4 +56,3 @@ def _check_ipcidr_minions(self, expr, greedy):
 
     return {'minions': list(minions),
             'missing': []}
-

@@ -1,13 +1,14 @@
-def connected_ids(self, subset=None, show_ipv4=False, include_localhost=False):
+def connected_ids(opts, subset=None, show_ipv4=False, include_localhost=False):
     '''
     Return a set of all connected minion ids, optionally within a subset
     '''
     minions = set()
-    if self.opts.get('minion_data_cache', False):
-        search = self.cache.list('minions')
+    cache = salt.cache.factory(opts)
+    if opts.get('minion_data_cache', False):
+        search = cache.list('minions')
         if search is None:
             return minions
-        addrs = salt.utils.network.local_port_tcp(int(self.opts['publish_port']))
+        addrs = salt.utils.network.local_port_tcp(int(opts['publish_port']))
         if '127.0.0.1' in addrs:
             # Add in the address of a possible locally-connected minion.
             addrs.discard('127.0.0.1')
@@ -16,7 +17,7 @@ def connected_ids(self, subset=None, show_ipv4=False, include_localhost=False):
             search = subset
         for id_ in search:
             try:
-                mdata = self.cache.fetch('minions/{0}'.format(id_), 'data')
+                mdata = cache.fetch('minions/{0}'.format(id_), 'data')
             except SaltCacheError:
                 # If a SaltCacheError is explicitly raised during the fetch operation,
                 # permission was denied to open the cached data.p file. Continue on as
@@ -38,4 +39,5 @@ def connected_ids(self, subset=None, show_ipv4=False, include_localhost=False):
                         minions.add(id_)
                     break
     return minions
+
 

@@ -1,4 +1,4 @@
-def auth_check_expanded(self,
+def auth_check_expanded(opts,
                         auth_list,
                         funs,
                         args,
@@ -44,10 +44,10 @@ def auth_check_expanded(self,
         v_tgt_type = 'pillar_exact'
     elif tgt_type.lower() == 'compound':
         v_tgt_type = 'compound_pillar_exact'
-    _res = self.check_minions(tgt, v_tgt_type)
+    _res = check_minions(opts, tgt, v_tgt_type)
     v_minions = set(_res['minions'])
 
-    _res = self.check_minions(tgt, tgt_type)
+    _res = check_minions(opts, tgt, tgt_type)
     minions = set(_res['minions'])
 
     mismatch = bool(minions.difference(v_minions))
@@ -75,7 +75,7 @@ def auth_check_expanded(self,
             for fun in funs:
                 # represents toplevel auth entry is a function.
                 # so this fn is permitted by all minions
-                if self.match_check(auth_list_entry, fun):
+                if _match_check(auth_list_entry, fun):
                     return True
             continue
         if isinstance(auth_list_entry, dict):
@@ -84,7 +84,7 @@ def auth_check_expanded(self,
                 continue
         allowed_minions.update(set(auth_list_entry.keys()))
         for key in auth_list_entry:
-            for match in self._expand_matching(key):
+            for match in _expand_matching(opts, key):
                 if match in auth_dictionary:
                     auth_dictionary[match].extend(auth_list_entry[key])
                 else:
@@ -92,7 +92,7 @@ def auth_check_expanded(self,
 
     allowed_minions_from_auth_list = set()
     for next_entry in allowed_minions:
-        allowed_minions_from_auth_list.update(self._expand_matching(next_entry))
+        allowed_minions_from_auth_list.update(_expand_matching(opts, next_entry))
     # 'minions' here are all the names of minions matched by the target
     # if we take out all the allowed minions, and there are any left, then
     # the target includes minions that are not allowed by eauth
@@ -104,7 +104,7 @@ def auth_check_expanded(self,
         for minion in minions:
             results = []
             for num, fun in enumerate(auth_dictionary[minion]):
-                results.append(self.match_check(fun, funs))
+                results.append(_match_check(fun, funs))
             if not any(results):
                 return False
         return True

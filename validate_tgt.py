@@ -1,4 +1,4 @@
-def validate_tgt(self, valid, expr, tgt_type, minions=None, expr_form=None):
+def validate_tgt(opts, valid, expr, tgt_type, minions=None, expr_form=None):
     '''
     Return a Bool. This function returns if the expression sent in is
     within the scope of the valid expression
@@ -14,9 +14,9 @@ def validate_tgt(self, valid, expr, tgt_type, minions=None, expr_form=None):
         )
         tgt_type = expr_form
 
-    v_minions = self._expand_matching(valid)
+    v_minions = _expand_matching(opts, valid)
     if minions is None:
-        _res = self.check_minions(expr, tgt_type)
+        _res = check_minions(opts, expr, tgt_type)
         minions = set(_res['minions'])
     else:
         minions = set(minions)
