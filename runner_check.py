@@ -1,6 +1,6 @@
-def runner_check(auth_list, fun, args):
+def runner_check(self, auth_list, fun, args):
     '''
     Check special API permissions
     '''
-    return spec_check(auth_list, fun, args, 'runner')
+    return self.spec_check(auth_list, fun, args, 'runner')
 

@@ -4,7 +4,11 @@ def mine_get(tgt, fun, tgt_type='glob', opts=None):
     function to look up and the target type
     '''
     ret = {}
-    _res = check_minions(opts, tgt, tgt_type)
+    serial = salt.payload.Serial(opts)
+    checker = CkMinions(opts)
+    _res = checker.check_minions(
+            tgt,
+            tgt_type)
     minions = _res['minions']
     cache = salt.cache.factory(opts)
     for minion in minions:

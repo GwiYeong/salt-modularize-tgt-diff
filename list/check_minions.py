@@ -1,9 +1,9 @@
-def check_minions(expr):
+def _check_list_minions(self, expr, greedy):  # pylint: disable=unused-argument
     '''
     Return the minions found by looking via a list
     '''
-    pki_minions = salt.tgt.pki_minions(__opts__)
     if isinstance(expr, six.string_types):
-        expr = [m.strip() for m in expr.split(',') if m.strip()]
-    return {'minions': [x for x in expr if x in pki_minions],
-            'missing': [x for x in expr if x not in pki_minions]}
+        expr = [m for m in expr.split(',') if m]
+    minions = self._pki_minions()
+    return {'minions': [x for x in expr if x in minions],
+            'missing': [x for x in expr if x not in minions]}

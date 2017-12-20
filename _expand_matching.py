@@ -1,4 +1,4 @@
-def _expand_matching(opts, auth_entry):
+def _expand_matching(self, auth_entry):
     ref = {'G': 'grain',
            'P': 'grain_pcre',
            'I': 'pillar',
@@ -16,6 +16,6 @@ def _expand_matching(opts, auth_entry):
     v_matcher = ref.get(target_info['engine'])
     v_expr = target_info['pattern']
 
-    _res = check_minions(opts, v_expr, v_matcher)
+    _res = self.check_minions(v_expr, v_matcher)
     return set(_res['minions'])
 

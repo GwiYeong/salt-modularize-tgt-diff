@@ -1,4 +1,4 @@
-def _match_check(regex, fun):
+def match_check(self, regex, fun):
     '''
     Validate a single regex to function comparison, the function argument
     can be a list of functions. It is all or nothing for a list of

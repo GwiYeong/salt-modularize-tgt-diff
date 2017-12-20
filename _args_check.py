@@ -1,4 +1,4 @@
-def _args_check(valid, args=None, kwargs=None):
+def __args_check(self, valid, args=None, kwargs=None):
     '''
     valid is a dicts: {'args': [...], 'kwargs': {...}} or a list of such dicts.
     '''
@@ -17,7 +17,7 @@ def _args_check(valid, args=None, kwargs=None):
                 break
             if cond_arg is None:  # None == '.*' i.e. allow any
                 continue
-            if not _match_check(cond_arg, str(args[i])):
+            if not self.match_check(cond_arg, str(args[i])):
                 good = False
                 break
         if not good:
@@ -30,7 +30,7 @@ def _args_check(valid, args=None, kwargs=None):
                 break
             if v is None:  # None == '.*' i.e. allow any
                 continue
-            if not _match_check(v, str(kwargs[k])):
+            if not self.match_check(v, str(kwargs[k])):
                 good = False
                 break
         if good:
